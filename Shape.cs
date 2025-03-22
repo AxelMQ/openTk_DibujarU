@@ -40,8 +40,6 @@ namespace OpenTK_DibujarU
             Vector3 basePosition = new Vector3(0.0f, -baseHeight / 2, 0.0f);
 
             // Lados verticales:
-            // - Centrados en X para que su borde interno coincida con la base
-            // - Comienzan desde Y=0 (parte superior de la base)
             Vector3 leftPosition = new Vector3(
                 x: -baseWidth / 2 + verticalWidth / 2, // Alinea el borde interno con la base
                 y: verticalHeight / 2, // Centro del cubo vertical (su altura parte desde Y=0)

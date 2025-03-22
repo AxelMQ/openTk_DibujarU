@@ -19,6 +19,9 @@ namespace OpenTK_DibujarU
         private Matrix4 _projectionMatrix;
         private Matrix4 _viewMatrix;
 
+        private Vector3 _position = new Vector3(0f, 0f, 0f);  // Posición de la figura
+
+
         public Program()
             : base(GameWindowSettings.Default, NativeWindowSettings.Default)
         {
@@ -37,10 +40,10 @@ namespace OpenTK_DibujarU
             // Configurar la matriz de proyección (perspectiva)
             float aspectRatio = Size.X / (float)Size.Y;
             _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(
-                MathHelper.PiOver3, // 60 grados (más amplio que 45°)
-                aspectRatio,        // Relación de aspecto
-                0.001f,               // Plano cercano
-                100.0f              // Plano lejano
+                MathHelper.DegreesToRadians(60f), // Un poco más amplio el ángulo de visión
+                aspectRatio,
+                0.1f,
+                100f
             );
 
             // Generar la "U" con parámetros específicos
@@ -50,9 +53,9 @@ namespace OpenTK_DibujarU
 
             // Configurar la matriz de vista (cámara)
             _viewMatrix = Matrix4.LookAt(
-                new Vector3(0, 2, 5), // Posición de la cámara (X, Y, Z)
-                new Vector3(0, 1, 0), // Enfocar al centro de la "U"
-                Vector3.UnitY         // Vector "arriba"
+                new Vector3(0f, 2f, 10f), // Posición de la cámara
+                new Vector3(0f, 0f, 0f),  // Hacia dónde mira
+                Vector3.UnitY            // "Arriba"
             );
 
 
@@ -158,7 +161,19 @@ namespace OpenTK_DibujarU
             // Pasar matrices al shader
             GL.UniformMatrix4(GL.GetUniformLocation(_shaderProgram, "uProjection"), false, ref _projectionMatrix);
             GL.UniformMatrix4(GL.GetUniformLocation(_shaderProgram, "uView"), false, ref _viewMatrix);
-            GL.UniformMatrix4(GL.GetUniformLocation(_shaderProgram, "uModel"), false, ref modelMatrix);
+
+
+            // ----------- PRIMERA FIGURA (original en el centro) -----------
+            Matrix4 modelMatrix1 = rotationMatrix * Matrix4.CreateTranslation(0f, 0f, 0f); // Sin traslación
+            //Matrix4 modelMatrix1 = rotationMatrix * Matrix4.CreateTranslation(_position);  // Con traslacion
+            GL.UniformMatrix4(GL.GetUniformLocation(_shaderProgram, "uModel"), false, ref modelMatrix1);
+
+            GL.BindVertexArray(_vertexArrayObject);
+            GL.DrawElements(PrimitiveType.Triangles, _triangle.Indices.Count, DrawElementsType.UnsignedInt, 0);
+
+            //-----------SEGUNDA FIGURA(copiada y movida a la derecha)---------- -
+            Matrix4 modelMatrix2 = rotationMatrix * Matrix4.CreateTranslation(5f, 0f, 0f); // Trasladada en X
+            GL.UniformMatrix4(GL.GetUniformLocation(_shaderProgram, "uModel"), false, ref modelMatrix2);
 
             GL.BindVertexArray(_vertexArrayObject);
             GL.DrawElements(PrimitiveType.Triangles, _triangle.Indices.Count, DrawElementsType.UnsignedInt, 0);
@@ -176,17 +191,23 @@ namespace OpenTK_DibujarU
                 Close();
             }
 
-            //// Mover la figura automáticamente
-            //_triangle.Position += _triangle.Velocity * (float)args.Time;
-
-            //// Ajustar rebote
-            //Vector3 currentVelocity = _triangle.Velocity;
-            //if (MathF.Abs(_triangle.Position.X) > 1.0f) currentVelocity.X *= -1;
-            //if (MathF.Abs(_triangle.Position.Y) > 1.0f) currentVelocity.Y *= -1;
-            //_triangle.Velocity = currentVelocity;
-
-            //// Opcional: Rotación basada en la velocidad
-            //_rotationAngle += _triangle.Velocity.Length * (float)args.Time * 10.0f;
+            // Mover la figura con las teclas de dirección
+            if (KeyboardState.IsKeyDown(Keys.W))  // Arriba
+            {
+                _position.Y += 0.1f;
+            }
+            if (KeyboardState.IsKeyDown(Keys.S))  // Abajo
+            {
+                _position.Y -= 0.1f;
+            }
+            if (KeyboardState.IsKeyDown(Keys.A))  // Izquierda
+            {
+                _position.X -= 0.1f;
+            }
+            if (KeyboardState.IsKeyDown(Keys.D))  // Derecha
+            {
+                _position.X += 0.1f;
+            }
         }
 
         [STAThread]
