@@ -5,67 +5,35 @@ namespace OpenTK_DibujarU
 {
     public class Parte
     {
-        public string Nombre { get; set; }
-        public List<Poligono> Poligonos { get; private set; }
-        public Vector3 PosicionRelativa { get; set; }
-        public Vector3 CentroRelativo { get; private set; }
+        public List<Poligono> Poligonos { get; } = new List<Poligono>();
+        public Vector3 CentroRelativo { get; set; }
+        public Vector3 PosicionRelativa { get; set; } = Vector3.Zero;
 
-        public Parte(string nombre = "", Vector3 posicionRelativa = default)
+        public Parte()
         {
-            Nombre = nombre;
             Poligonos = new List<Poligono>();
-            PosicionRelativa = posicionRelativa;
             CentroRelativo = Vector3.Zero;
+        }
+
+        public void Dibujar(Vector3 offsetObjeto)
+        {
+            Matrix4 model = Matrix4.CreateTranslation(offsetObjeto + PosicionRelativa + CentroRelativo);
+            foreach (var poligono in Poligonos)
+            {
+                poligono.Dibujar(model); 
+            }
         }
 
         public void CalcularCentroDeMasa()
         {
-            if (Poligonos.Count == 0)
-            {
-                CentroRelativo = Vector3.Zero;
-                return;
-            }
-
             Vector3 suma = Vector3.Zero;
             foreach (var poligono in Poligonos)
             {
                 poligono.CalcularCentroDeMasa();
                 suma += poligono.CentroRelativo;
             }
-
-            CentroRelativo = suma / Poligonos.Count;
-
-            for (int i = 0; i < Poligonos.Count; i++)
-            {
-                Poligonos[i].Vertices = Poligonos[i].Vertices.ConvertAll(v => v - CentroRelativo);
-            }
-
-            PosicionRelativa -= CentroRelativo;
+            CentroRelativo = Poligonos.Count > 0 ? suma / Poligonos.Count : Vector3.Zero;
         }
-
-
-        public void Mover(Vector3 desplazamiento)
-        {
-            PosicionRelativa += desplazamiento;  // Mover la parte con el desplazamiento
-        }
-
-        // Método para agregar un polígono
-        public void AgregarPoligono(Poligono poligono)
-        {
-            Poligonos.Add(poligono);
-        }
-
-        public void Dibujar(Renderer renderer, Vector3 posicionGlobalObjeto)
-        {
-            Vector3 posicionGlobalParte = posicionGlobalObjeto + PosicionRelativa;
-
-            foreach (var poligono in Poligonos)
-            {
-                poligono.Dibujar(renderer, posicionGlobalParte);  // Llamada al método Dibujar() de Poligono
-            }
-        }
-
-
 
     }
 

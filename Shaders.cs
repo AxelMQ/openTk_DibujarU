@@ -1,33 +1,42 @@
-﻿public static class Shaders
+﻿using OpenTK_DibujarU;
+
+public static class Shaders
 {
-    // Vertex Shader
-    public static string VertexShaderSource = @"
+    public static Shader DefaultShader { get;  set; }
+
+    static Shaders()
+    {
+        DefaultShader = new Shader(VertexShaderSource, FragmentShaderSource);
+    }
+
+    public const string VertexShaderSource = @"
         #version 330 core
+        
         layout (location = 0) in vec3 aPosition;
-        layout (location = 1) in vec4 aColor;
+        layout (location = 1) in vec3 aColor;
 
-        uniform mat4 uProjection;
-        uniform mat4 uView;
-        uniform mat4 uModel;
+        uniform mat4 projection;
+        uniform mat4 view;
+        uniform mat4 model;
 
-        out vec4 vColor;
+        out vec3 fragmentColor;
 
         void main()
         {
-            gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
-            vColor = aColor;
-        }
-    ";
+            gl_Position = projection * view * model * vec4(aPosition, 1.0);
+            fragmentColor = aColor;
+        }";
 
-    // Fragment Shader
-    public static string FragmentShaderSource = @"
+    public const string FragmentShaderSource = @"
         #version 330 core
-        in vec4 vColor;
-        out vec4 fragColor;
+        
+        in vec3 fragmentColor;
+        uniform vec4 overrideColor;
+        
+        out vec4 outputColor;
 
         void main()
         {
-            fragColor = vColor;
-        }
-    ";
+            outputColor = overrideColor * vec4(fragmentColor, 1.0);
+        }";
 }

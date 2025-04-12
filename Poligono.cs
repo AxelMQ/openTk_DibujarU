@@ -1,84 +1,91 @@
-﻿using OpenTK.Mathematics;
+﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using System.Collections.Generic;
 
 namespace OpenTK_DibujarU
 {
-    public class Poligono
+    public class Poligono : IDisposable
     {
-        public List<Vector3> Vertices { get;  set; }
-        public List<int> Indices { get; set; }
-        public Vector4 Color { get; private set; }
-        public Vector3 CentroRelativo { get; private set; }
+        public List<Vector3> VerticesRelativos { get;  set; }
+        public Vector3 CentroRelativo { get;  set; }
+        public Vector4 Color { get; set; }
 
-        public Poligono(List<Vector3> vertices, List<int> indices, Vector4 color)
+        private int _vao;
+        private int _vbo;
+        private bool _initialized = false;
+
+        public Poligono(List<Vector3> vertices, Vector4 color)
         {
-            Vertices = vertices;
-            Indices = indices;
+            Console.WriteLine($"Creando polígono con {vertices.Count} vértices");
+            VerticesRelativos = vertices;
             Color = color;
             CalcularCentroDeMasa();
+            InitializeGL();
         }
 
         public void CalcularCentroDeMasa()
         {
-            if (Vertices.Count == 0) return;
+            if (VerticesRelativos.Count == 0) return;
 
-            Vector3 suma = Vector3.Zero;
-            foreach (var vertice in Vertices)
-                suma += vertice;
+            CentroRelativo = Vector3.Zero;
+            foreach (var v in VerticesRelativos)
+                CentroRelativo += v;
+            CentroRelativo /= VerticesRelativos.Count;
 
-            CentroRelativo = suma / Vertices.Count;
-
-            // Convertir vértices a coordenadas relativas al centro de masa
-            for (int i = 0; i < Vertices.Count; i++)
-                Vertices[i] -= CentroRelativo;
+            // Normalizar los vertices
+            for (int i = 0; i < VerticesRelativos.Count; i++)
+                VerticesRelativos[i] -= CentroRelativo;
         }
 
-
-        public void Rotar(float angulo, Vector3 eje, Vector3 centroRotacion)
+        private void InitializeGL()
         {
-            Quaternion rotacion = Quaternion.FromAxisAngle(eje.Normalized(),
-                                MathHelper.DegreesToRadians(angulo));
+            _vao = GL.GenVertexArray();
+            _vbo = GL.GenBuffer();
 
-            for (int i = 0; i < Vertices.Count; i++)
+            GL.BindVertexArray(_vao);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
+
+            // Configuración del layout del vértice
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
+            GL.EnableVertexAttribArray(0);
+            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
+            GL.EnableVertexAttribArray(1);
+
+            _initialized = true;
+            UpdateBufferData();
+        }
+
+        private void UpdateBufferData()
+        {
+            float[] vertexData = new float[VerticesRelativos.Count * 6];
+            for (int i = 0; i < VerticesRelativos.Count; i++)
             {
-                Vector3 verticeRelativo = Vertices[i] - centroRotacion;
-                Vertices[i] = centroRotacion + Vector3.Transform(verticeRelativo, rotacion);
+                vertexData[i * 6] = VerticesRelativos[i].X;
+                vertexData[i * 6 + 1] = VerticesRelativos[i].Y;
+                vertexData[i * 6 + 2] = VerticesRelativos[i].Z;
+                vertexData[i * 6 + 3] = Color.X;
+                vertexData[i * 6 + 4] = Color.Y;
+                vertexData[i * 6 + 5] = Color.Z;
+            }
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertexData.Length * sizeof(float), vertexData, BufferUsageHint.DynamicDraw);
+        }
+
+        public void Dibujar(Matrix4 modelMatrix)
+        {
+            Shaders.DefaultShader.SetMatrix4("model", modelMatrix); 
+            GL.BindVertexArray(_vao);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, VerticesRelativos.Count);
+        }
+
+        public void Dispose()
+        {
+            if (_initialized)
+            {
+                GL.DeleteBuffer(_vbo);
+                GL.DeleteVertexArray(_vao);
             }
         }
-
-        public void Escalar(Vector3 escala, Vector3 centroEscalado)
-        {
-            for (int i = 0; i < Vertices.Count; i++)
-            {
-                Vector3 verticeRelativo = Vertices[i] - centroEscalado;
-                Vertices[i] = centroEscalado + Vector3.Multiply(verticeRelativo, escala);
-            }
-        }
-
-        public float[] GetVerticesAsFloatArray(Vector3? offset = null)
-        {
-            Vector3 actualOffset = offset ?? Vector3.Zero;
-            List<float> result = new List<float>();
-            foreach (var vertex in Vertices)
-            {
-                Vector3 verticeGlobal = vertex + actualOffset;
-                result.Add(verticeGlobal.X);
-                result.Add(verticeGlobal.Y);
-                result.Add(verticeGlobal.Z);
-                result.Add(Color.X);
-                result.Add(Color.Y);
-                result.Add(Color.Z);
-                result.Add(Color.W);
-            }
-            return result.ToArray();
-        }
-
-        public void Dibujar(Renderer renderer, Vector3 posicionGlobalParte)
-        {
-            // Posición final = posición de la parte + centro del polígono
-            renderer.RenderPoligono(this, posicionGlobalParte + CentroRelativo);
-        }
-
-
     }
 }

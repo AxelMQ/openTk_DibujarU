@@ -5,8 +5,8 @@ namespace OpenTK_DibujarU
 {
     public class Escenario
     {
-        public List<Objeto> Objetos { get; private set; }
-        public Vector3 CentroRelativo { get; private set; }
+        public List<Objeto> Objetos { get; } = new List<Objeto>();
+        public Vector3 CentroRelativo { get; set; }
 
         public Escenario()
         {
@@ -16,35 +16,20 @@ namespace OpenTK_DibujarU
 
         public void CalcularCentroDeMasa()
         {
-            if (Objetos.Count == 0) return;
-
             Vector3 suma = Vector3.Zero;
-            foreach (var objeto in Objetos)
+            foreach (var obj in Objetos)
             {
-                objeto.CalcularCentroDeMasa();
-                suma += objeto.CentroRelativo + objeto.PosicionRelativa;
+                obj.CalcularCentroDeMasa();
+                suma += obj.CentroRelativo;
             }
-
-            CentroRelativo = suma / Objetos.Count;
-
-            // Ajustar la posición relativa de cada Objeto
-            for (int i = 0; i < Objetos.Count; i++)
-            {
-                Objetos[i].PosicionRelativa -= CentroRelativo;
-            }
+            CentroRelativo = Objetos.Count > 0 ? suma / Objetos.Count : Vector3.Zero;
         }
 
-
-        public void AgregarObjeto(Objeto objeto)
-        {
-            Objetos.Add(objeto);
-        }
-
-        public void Dibujar(Renderer renderer)
+        public void Dibujar()
         {
             foreach (var objeto in Objetos)
             {
-                objeto.Dibujar(renderer, CentroRelativo);
+                objeto.Dibujar(CentroRelativo);
             }
         }
 
