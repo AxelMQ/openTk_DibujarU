@@ -62,6 +62,19 @@ namespace OpenTK_DibujarU
             CalcularCentroDeMasa(); 
         }
 
+        public void Escalar(Vector3 factor)
+        {
+            foreach (var poligono in Poligonos)
+            {
+                poligono.Escalar(factor, CentroRelativo);
+            }
+
+            CalcularCentroDeMasa();
+        }
+        public void Escalar(float factor)
+        {
+            Escalar(new Vector3(factor, factor, factor));
+        }
 
     }
 

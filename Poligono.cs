@@ -137,8 +137,32 @@ namespace OpenTK_DibujarU
             UpdateBufferData();
         }
 
+        public void Escalar(Vector3 factor, Vector3 centro)
+        {
+            for (int i = 0; i < VerticesRelativos.Count; i++)
+            {
+                var v = VerticesRelativos[i];
+                Vector3 desplazado = v - centro;
+                Vector3 escalado = new Vector3(
+                    desplazado.X * factor.X,
+                    desplazado.Y * factor.Y,
+                    desplazado.Z * factor.Z
+                );
+                VerticesRelativos[i] = centro + escalado;
+            }
 
+            CalcularCentroDeMasa();
+            UpdateBufferData();
+        }
+        public void Escalar(float factor, Vector3 centro)
+        {
+            Escalar(new Vector3(factor, factor, factor), centro);
+        }
 
+        public void Escalar(Vector3 factor)
+        {
+            Escalar(factor, CentroRelativo);
+        }
 
     }
 }

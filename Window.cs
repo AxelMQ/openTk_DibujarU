@@ -193,6 +193,8 @@ namespace OpenTK_DibujarU
                 }
             }
 
+            // -------- ROTAR --------
+
             float angulo = 5f * (float)e.Time; // grados por segundo
             Vector3 rotacion = Vector3.Zero;
 
@@ -226,6 +228,51 @@ namespace OpenTK_DibujarU
                 }
             }
 
+            // -------- ESCALADO --------
+            Vector3 escala = Vector3.One; 
+
+            if (KeyboardState.IsKeyDown(Keys.U))
+            {
+                escala *= 1.001f; // Aumentar un 1% por frame
+            }
+            if (KeyboardState.IsKeyDown(Keys.J))
+            {
+                escala *= 0.999f; // Disminuir un 1% por frame
+            }
+
+            if (escala != Vector3.One)
+            {
+                switch (_nivelActual)
+                {
+                    case NivelTransformacion.Escenario:
+                        _escenario.Escalar(escala);
+                        break;
+                    case NivelTransformacion.Objeto:
+                        if (_escenario.Objetos.Count > 0)
+                            _escenario.Objetos[objetoSeleccionado].Escalar(escala);
+                        break;
+                    case NivelTransformacion.Parte:
+                        if (_escenario.Objetos.Count > 0)
+                        {
+                            var obj = _escenario.Objetos[objetoSeleccionado];
+                            if (obj.Partes.Count > parteSeleccionada)
+                                obj.Partes[parteSeleccionada].Escalar(escala);
+                        }
+                        break;
+                    case NivelTransformacion.Poligono:
+                        if (_escenario.Objetos.Count > 0)
+                        {
+                            var obj = _escenario.Objetos[objetoSeleccionado];
+                            if (obj.Partes.Count > parteSeleccionada)
+                            {
+                                var parte = obj.Partes[parteSeleccionada];
+                                if (parte.Poligonos.Count > poligonoSeleccionado)
+                                    parte.Poligonos[poligonoSeleccionado].Escalar(escala);
+                            }
+                        }
+                        break;
+                }
+            }
 
 
             if (KeyboardState.IsKeyDown(Keys.Escape))

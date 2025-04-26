@@ -69,9 +69,23 @@ namespace OpenTK_DibujarU
                 objeto.Rotar(anguloEnRadianes); // ahora rota sus partes
             }
 
-            // No recalcular el centro aquí.
         }
+        public void Escalar(Vector3 factor)
+        {
+            foreach (var objeto in Objetos)
+            {
+                Vector3 desplazado = objeto.Posicion - CentroRelativo;
+                Vector3 escalado = desplazado * factor;
+                objeto.Posicion = CentroRelativo + escalado;
 
+                objeto.Escalar(factor); // escalar internamente
+            }
+
+        }
+        public void Escalar(float factor)
+        {
+            Escalar(new Vector3(factor, factor, factor));
+        }
 
     }
 }

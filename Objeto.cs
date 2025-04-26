@@ -70,10 +70,27 @@ namespace OpenTK_DibujarU
                 pos = transform * pos;
                 parte.PosicionRelativa = new Vector3(pos.X, pos.Y, pos.Z);
 
-                parte.Rotar(anguloEnRadianes); // ahora rota los polígonos
+                parte.Rotar(anguloEnRadianes); 
             }
         }
+        public void Escalar(Vector3 factor)
+        {
+            foreach (var parte in Partes)
+            {
+                Vector3 desplazado = parte.PosicionRelativa - CentroRelativo;
+                Vector3 escalado = desplazado * factor;
+                parte.PosicionRelativa = CentroRelativo + escalado;
 
+                parte.Escalar(factor);
+            }
+
+            CalcularCentroDeMasa();
+        }
+
+        public void Escalar(float factor)
+        {
+            Escalar(new Vector3(factor, factor, factor));
+        }
 
     }
 
