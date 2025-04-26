@@ -5,7 +5,7 @@ namespace OpenTK_DibujarU
 {
     public class Parte
     {
-        public List<Poligono> Poligonos { get; } = new List<Poligono>();
+        public List<Poligono> Poligonos { get; set; } = new List<Poligono>();
         public Vector3 CentroRelativo { get; set; }
         public Vector3 PosicionRelativa { get; set; } = Vector3.Zero;
 
@@ -34,6 +34,15 @@ namespace OpenTK_DibujarU
             }
             CentroRelativo = Poligonos.Count > 0 ? suma / Poligonos.Count : Vector3.Zero;
         }
+        public void Inicializar()
+        {
+            foreach (var poligono in Poligonos)
+            {
+                poligono.CalcularCentroDeMasa();
+                poligono.Inicializar();
+            }
+        }
+
 
     }
 

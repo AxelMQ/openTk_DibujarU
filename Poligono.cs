@@ -6,13 +6,16 @@ namespace OpenTK_DibujarU
 {
     public class Poligono : IDisposable
     {
-        public List<Vector3> VerticesRelativos { get;  set; }
+        public List<Vector3> VerticesRelativos { get; set; } = new();
         public Vector3 CentroRelativo { get;  set; }
         public Vector4 Color { get; set; }
 
         private int _vao;
         private int _vbo;
         private bool _initialized = false;
+
+        public Poligono() { }
+
 
         public Poligono(List<Vector3> vertices, Vector4 color)
         {
@@ -87,5 +90,10 @@ namespace OpenTK_DibujarU
                 GL.DeleteVertexArray(_vao);
             }
         }
+        public void Inicializar()
+        {
+            InitializeGL();
+        }
+
     }
 }

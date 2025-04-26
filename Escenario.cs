@@ -5,7 +5,7 @@ namespace OpenTK_DibujarU
 {
     public class Escenario
     {
-        public List<Objeto> Objetos { get; } = new List<Objeto>();
+        public List<Objeto> Objetos { get; set; } = new List<Objeto>();
         public Vector3 CentroRelativo { get; set; }
 
         public Escenario()
@@ -30,6 +30,13 @@ namespace OpenTK_DibujarU
             foreach (var objeto in Objetos)
             {
                 objeto.Dibujar(CentroRelativo);
+            }
+        }
+        public void Inicializar()
+        {
+            foreach (var obj in Objetos)
+            {
+                obj.Inicializar(); 
             }
         }
 

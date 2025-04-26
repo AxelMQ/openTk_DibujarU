@@ -47,13 +47,13 @@ namespace OpenTK_DibujarU
                 Vector3.UnitY
             );
 
-            var uObjeto = ObjetoU.CrearU(new Vector4(1f, 0f, 0f, 1f));
-            uObjeto.Posicion = new Vector3(0f, 0f, 0f);
-            _escenario.Objetos.Add(uObjeto);
+            //var uObjeto = ObjetoU.CrearU(new Vector4(1f, 0f, 0f, 1f));
+            //uObjeto.Posicion = new Vector3(0f, 0f, 0f);
+            //_escenario.Objetos.Add(uObjeto);
 
-            var uObjeto2 = ObjetoU.CrearU(new Vector4(1f, 0f, 1f, 1f));
-            uObjeto2.Posicion = new Vector3(2f, 0f, 0f);
-            _escenario.Objetos.Add(uObjeto2);
+            //var uObjeto2 = ObjetoU.CrearU(new Vector4(1f, 0f, 1f, 1f));
+            //uObjeto2.Posicion = new Vector3(2f, 0f, 0f);
+            //_escenario.Objetos.Add(uObjeto2);
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -80,6 +80,36 @@ namespace OpenTK_DibujarU
             {
                 Close();
             }
+
+            if (KeyboardState.IsKeyPressed(Keys.G))
+            {
+                Serializador.GuardarObjeto("objetoU.json", _escenario.Objetos.First());
+                Console.WriteLine("Objeto guardado en objetoU.json");
+            }
+
+            if (KeyboardState.IsKeyPressed(Keys.L))
+            {
+                var cargado = Serializador.CargarObjeto("objetoU.json");
+                cargado.Posicion = new Vector3(-2f, 0f, 0f);
+                cargado.Inicializar();
+
+                _escenario.Objetos.Add(cargado);
+                Console.WriteLine("Objeto cargado desde objetoU.json");
+            }
+
+            if (KeyboardState.IsKeyPressed(Keys.H))
+            {
+                Serializador.GuardarEscenario("escenario.json", _escenario);
+                Console.WriteLine("Escenario guardado en escenario.json");
+            }
+
+            if (KeyboardState.IsKeyPressed(Keys.K))
+            {
+                _escenario = Serializador.CargarEscenario("escenario.json");
+                _escenario.Inicializar();
+                Console.WriteLine("Escenario cargado desde escenario.json");
+            }
+
         }
 
         protected override void OnResize(ResizeEventArgs e)

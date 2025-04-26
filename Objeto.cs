@@ -5,7 +5,7 @@ namespace OpenTK_DibujarU
 {
     public class Objeto
     {
-        public List<Parte> Partes { get; } = new List<Parte>();
+        public List<Parte> Partes { get; set; } = new List<Parte>();
         public Vector3 CentroRelativo { get; set; }
         public Vector3 Posicion { get; set; } = Vector3.Zero;
 
@@ -35,6 +35,14 @@ namespace OpenTK_DibujarU
                 parte.Dibujar(offsetGlobal);
             }
         }
+        public void Inicializar()
+        {
+            foreach (var parte in Partes)
+            {
+                parte.Inicializar();
+            }
+        }
+
 
     }
 
