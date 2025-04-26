@@ -52,6 +52,15 @@ namespace OpenTK_DibujarU
             CentroRelativo += desplazamiento;
             PosicionRelativa += desplazamiento;
         }
+        public void Rotar(Vector3 anguloEnRadianes)
+        {
+            foreach (var poligono in Poligonos)
+            {
+                poligono.Rotar(anguloEnRadianes, CentroRelativo);
+            }
+
+            CalcularCentroDeMasa(); 
+        }
 
 
     }

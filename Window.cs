@@ -62,13 +62,13 @@ namespace OpenTK_DibujarU
                 Vector3.UnitY
             );
 
-            //var uObjeto = ObjetoU.CrearU(new Vector4(1f, 0f, 0f, 1f));
-            //uObjeto.Posicion = new Vector3(0f, 0f, 0f);
-            //_escenario.Objetos.Add(uObjeto);
+            var uObjeto = ObjetoU.CrearU(new Vector4(1f, 0f, 0f, 1f));
+            uObjeto.Posicion = new Vector3(0f, 0f, 0f);
+            _escenario.Objetos.Add(uObjeto);
 
-            //var uObjeto2 = ObjetoU.CrearU(new Vector4(1f, 0f, 1f, 1f));
-            //uObjeto2.Posicion = new Vector3(2f, 0f, 0f);
-            //_escenario.Objetos.Add(uObjeto2);
+            var uObjeto2 = ObjetoU.CrearU(new Vector4(1f, 0f, 1f, 1f));
+            uObjeto2.Posicion = new Vector3(2f, 0f, 0f);
+            _escenario.Objetos.Add(uObjeto2);
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -188,6 +188,39 @@ namespace OpenTK_DibujarU
                                 if (parte.Poligonos.Count > poligonoSeleccionado)
                                     parte.Poligonos[poligonoSeleccionado].Trasladar(movimiento);
                             }
+                        }
+                        break;
+                }
+            }
+
+            float angulo = 5f * (float)e.Time; // grados por segundo
+            Vector3 rotacion = Vector3.Zero;
+
+            if (KeyboardState.IsKeyDown(Keys.Z)) rotacion.Y += angulo; // izquierda
+            if (KeyboardState.IsKeyDown(Keys.X)) rotacion.Y -= angulo; // derecha
+            if (KeyboardState.IsKeyDown(Keys.R)) rotacion.X += angulo; // arriba
+            if (KeyboardState.IsKeyDown(Keys.T)) rotacion.X -= angulo; // abajo
+            if (KeyboardState.IsKeyDown(Keys.C)) rotacion.Z += angulo; // roll horario
+            if (KeyboardState.IsKeyDown(Keys.V)) rotacion.Z -= angulo; // roll antihorario
+
+            if (rotacion != Vector3.Zero)
+            {
+
+                switch (_nivelActual)
+                {
+                    case NivelTransformacion.Escenario:
+                        _escenario.Rotar(rotacion);
+                        break;
+                    case NivelTransformacion.Objeto:
+                        if (_escenario.Objetos.Count > 0)
+                            _escenario.Objetos[objetoSeleccionado].Rotar(rotacion);
+                        break;
+                    case NivelTransformacion.Parte:
+                        if (_escenario.Objetos.Count > 0)
+                        {
+                            var obj = _escenario.Objetos[objetoSeleccionado];
+                            if (obj.Partes.Count > parteSeleccionada)
+                                obj.Partes[parteSeleccionada].Rotar(rotacion);
                         }
                         break;
                 }

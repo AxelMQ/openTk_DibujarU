@@ -107,6 +107,38 @@ namespace OpenTK_DibujarU
 
             UpdateBufferData();
         }
+        public void Rotar(Vector3 anguloEnRadianes, Vector3 centro)
+        {
+            Matrix4 transform = Matrix4.Identity;
+
+            // Trasladar al origen
+            transform *= Matrix4.CreateTranslation(-centro);
+
+            // Rotaciones individuales
+            if (anguloEnRadianes.X != 0)
+                transform *= Matrix4.CreateRotationX(anguloEnRadianes.X);
+            if (anguloEnRadianes.Y != 0)
+                transform *= Matrix4.CreateRotationY(anguloEnRadianes.Y);
+            if (anguloEnRadianes.Z != 0)
+                transform *= Matrix4.CreateRotationZ(anguloEnRadianes.Z);
+
+            // Volver a trasladar al centro
+            transform *= Matrix4.CreateTranslation(centro);
+
+            // Aplicar transformación a cada vértice
+            for (int i = 0; i < VerticesRelativos.Count; i++)
+            {
+                Vector4 v = new Vector4(VerticesRelativos[i], 1.0f);
+                v = transform * v;
+                VerticesRelativos[i] = new Vector3(v.X, v.Y, v.Z);
+            }
+
+            CalcularCentroDeMasa();
+            UpdateBufferData();
+        }
+
+
+
 
     }
 }
