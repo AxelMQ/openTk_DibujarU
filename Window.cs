@@ -14,6 +14,21 @@ namespace OpenTK_DibujarU
         private Escenario _escenario;
         private Matrix4 _projection;
         private Matrix4 _view;
+        private enum NivelTransformacion
+        {
+            Escenario,
+            Objeto,
+            Parte,
+            Poligono
+        }
+
+        private NivelTransformacion _nivelActual = NivelTransformacion.Objeto;
+
+        private int objetoSeleccionado = 0;
+        private int parteSeleccionada = 0;
+        private int poligonoSeleccionado = 0;
+
+
 
         public Window(int width, int height, string title)
             : base(GameWindowSettings.Default, new NativeWindowSettings()
@@ -75,6 +90,110 @@ namespace OpenTK_DibujarU
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
+
+            float velocidad = 2.0f; // Unidades por segundo
+            Vector3 movimiento = Vector3.Zero;
+
+            // Cambiar nivel con teclas numéricas
+            if (KeyboardState.IsKeyPressed(Keys.D1))
+            {
+                _nivelActual = NivelTransformacion.Escenario;
+                Console.WriteLine("Nivel actual: Escenario");
+            }
+            else if (KeyboardState.IsKeyPressed(Keys.D2))
+            {
+                _nivelActual = NivelTransformacion.Objeto;
+                Console.WriteLine("Nivel actual: Objeto");
+            }
+            else if (KeyboardState.IsKeyPressed(Keys.D3))
+            {
+                _nivelActual = NivelTransformacion.Parte;
+                Console.WriteLine("Nivel actual: Parte");
+            }
+            else if (KeyboardState.IsKeyPressed(Keys.D4))
+            {
+                _nivelActual = NivelTransformacion.Poligono;
+                Console.WriteLine("Nivel actual: Polígono");
+            }
+
+
+            // Cambiar entre objetos
+            if (KeyboardState.IsKeyPressed(Keys.O) && _escenario.Objetos.Count > 0)
+            {
+                if (_escenario.Objetos.Count > 0)
+                {
+                    objetoSeleccionado = (objetoSeleccionado + 1) % _escenario.Objetos.Count;
+                    Console.WriteLine($"Objeto seleccionado: {objetoSeleccionado}");
+                }
+            }
+
+            // Cambiar entre las partes del objeto
+            if (KeyboardState.IsKeyPressed(Keys.P) && _escenario.Objetos.Count > 0)
+            {
+                var objeto = _escenario.Objetos[objetoSeleccionado];
+                if (objeto.Partes.Count > 0)
+                {
+                    parteSeleccionada = (parteSeleccionada + 1) % objeto.Partes.Count;
+                    Console.WriteLine($"Parte seleccionada: {parteSeleccionada}");
+                }
+            }
+
+
+
+            if (KeyboardState.IsKeyDown(Keys.W))
+                movimiento += new Vector3(0f, 0f, -1f); // Adelante
+            if (KeyboardState.IsKeyDown(Keys.S))
+                movimiento += new Vector3(0f, 0f, 1f);  // Atrás
+            if (KeyboardState.IsKeyDown(Keys.A))
+                movimiento += new Vector3(-1f, 0f, 0f); // Izquierda
+            if (KeyboardState.IsKeyDown(Keys.D))
+                movimiento += new Vector3(1f, 0f, 0f);  // Derecha
+            if (KeyboardState.IsKeyDown(Keys.Q))
+                movimiento += new Vector3(0f, -1f, 0f); // Abajo
+            if (KeyboardState.IsKeyDown(Keys.E))
+                movimiento += new Vector3(0f, 1f, 0f);  // Arriba
+
+            if (movimiento != Vector3.Zero)
+            {
+                movimiento = movimiento.Normalized() * velocidad * (float)e.Time;
+
+                switch (_nivelActual)
+                {
+                    case NivelTransformacion.Escenario:
+                        _escenario.Trasladar(movimiento);
+                        break;
+
+                    case NivelTransformacion.Objeto:
+                        if (_escenario.Objetos.Count > 0)
+                            _escenario.Objetos[objetoSeleccionado].Trasladar(movimiento);
+                        break;
+
+                    case NivelTransformacion.Parte:
+                        if (_escenario.Objetos.Count > 0)
+                        {
+                            var obj = _escenario.Objetos[objetoSeleccionado];
+                            if (obj.Partes.Count > parteSeleccionada)
+                                obj.Partes[parteSeleccionada].Trasladar(movimiento);
+
+                        }
+                        break;
+
+                    case NivelTransformacion.Poligono:
+                        if (_escenario.Objetos.Count > 0)
+                        {
+                            var obj = _escenario.Objetos[objetoSeleccionado];
+                            if (obj.Partes.Count > parteSeleccionada)
+                            {
+                                var parte = obj.Partes[parteSeleccionada];
+                                if (parte.Poligonos.Count > poligonoSeleccionado)
+                                    parte.Poligonos[poligonoSeleccionado].Trasladar(movimiento);
+                            }
+                        }
+                        break;
+                }
+            }
+
+
 
             if (KeyboardState.IsKeyDown(Keys.Escape))
             {

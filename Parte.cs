@@ -42,6 +42,16 @@ namespace OpenTK_DibujarU
                 poligono.Inicializar();
             }
         }
+        public void Trasladar(Vector3 desplazamiento)
+        {
+            foreach (var poligono in Poligonos)
+            {
+                poligono.Trasladar(desplazamiento);
+            }
+
+            CentroRelativo += desplazamiento;
+            PosicionRelativa += desplazamiento;
+        }
 
 
     }

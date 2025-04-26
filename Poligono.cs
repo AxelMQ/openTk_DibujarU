@@ -94,6 +94,19 @@ namespace OpenTK_DibujarU
         {
             InitializeGL();
         }
+        public void Trasladar(Vector3 desplazamiento)
+        {
+            for (int i = 0; i < VerticesRelativos.Count; i++)
+            {
+                var v = VerticesRelativos[i]; 
+                v += desplazamiento;           
+                VerticesRelativos[i] = v;      
+            }
+
+            CentroRelativo += desplazamiento;
+
+            UpdateBufferData();
+        }
 
     }
 }

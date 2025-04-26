@@ -42,6 +42,16 @@ namespace OpenTK_DibujarU
                 parte.Inicializar();
             }
         }
+        public void Trasladar(Vector3 desplazamiento)
+        {
+            foreach (var parte in Partes)
+            {
+                parte.Trasladar(desplazamiento);
+            }
+
+            CentroRelativo += desplazamiento;
+            Posicion += desplazamiento;
+        }
 
 
     }
